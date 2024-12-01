@@ -4,14 +4,11 @@ public static class ProblemFunctions
 {
     public static async Task SolvePuzzles()
     {
-        await SolveFirstPuzzle();
-        await SolveSecondPuzzle();
-    }
+        var (left, right, freq) = await GetLocations()
+            .ConfigureAwait(false);
 
-    public static async Task SolveFirstPuzzle()
-    {
-        var (left, right) = await GetLocations().ConfigureAwait(false);
-        Console.WriteLine("Left={0}, Right={1}", left.Count, right.Count);
+        Console.WriteLine("Left={0}, Right={1}, Frequencies={2}", left.Count, right.Count, freq.Count);
+
         if (left.Count != right.Count)
         {
             Console.Error.WriteLine("Error: the counts must be equal");
@@ -20,6 +17,12 @@ public static class ProblemFunctions
 
         PrintPreview(left, right, 10);
 
+        SolveFirstPuzzle(left, right);
+        SolveSecondPuzzle(left, freq);
+    }
+
+    private static void SolveFirstPuzzle(List<int> left, List<int> right)
+    {
         left.Sort();
         right.Sort();
 
@@ -33,13 +36,8 @@ public static class ProblemFunctions
         Console.WriteLine("Day 1 Problem 1 Answer: {0}", total);
     }
 
-    public static async Task SolveSecondPuzzle()
+    private static void SolveSecondPuzzle(List<int> locations, Dictionary<int, int> frequencies)
     {
-        var (locations, frequencies) = await GetLocationsAndFrequencies()
-            .ConfigureAwait(false);
-
-        Console.WriteLine("Total Locations={0}, Frequency Count={1}", locations.Count, frequencies.Count);
-
         var similarityScore = locations
             .Select(l => frequencies.GetValueOrDefault(l) * l)
             .Sum();
@@ -47,13 +45,15 @@ public static class ProblemFunctions
         Console.WriteLine("Day 1 Problem 2 Answer: {0}", similarityScore);
     }
 
-    private static async Task<(List<int> left, List<int> right)> GetLocations()
+    private static async Task<(List<int> left, List<int> right, Dictionary<int, int> frequencies)> GetLocations()
     {
         using var file = File.Open("./data/day1.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
         using var streamReader = new StreamReader(file, detectEncodingFromByteOrderMarks: true);
 
         var left = new List<int>();
         var right = new List<int>();
+        var frequencies = new Dictionary<int, int>();
+
         while (!streamReader.EndOfStream)
         {
             ReadOnlySpan<char> data = await streamReader
@@ -68,36 +68,14 @@ public static class ProblemFunctions
 
             left.Add(l1);
             right.Add(r1);
-        }
 
-        return (left, right);
-    }
-
-    private static async Task<(List<int> locations, Dictionary<int, int> frequencies)> GetLocationsAndFrequencies()
-    {
-        using var file = File.Open("./data/day1.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
-        using var streamReader = new StreamReader(file, detectEncodingFromByteOrderMarks: true);
-
-        var left = new List<int>();
-        var right = new Dictionary<int, int>();
-        while (!streamReader.EndOfStream)
-        {
-            ReadOnlySpan<char> data = await streamReader.ReadLineAsync().ConfigureAwait(false);
-            var firstDelim = data.IndexOf(' ');
-            var lastStart = data.LastIndexOf(' ');
-
-            var l1 = int.Parse(data[..firstDelim]);
-            var r1 = int.Parse(data[lastStart..]);
-
-            left.Add(l1);
-
-            if (!right.TryAdd(r1, 1))
+            if (!frequencies.TryAdd(r1, 1))
             {
-                right[r1]++;
+                frequencies[r1]++;
             }
         }
 
-        return (left, right);
+        return (left, right, frequencies);
     }
 
     private static void PrintPreview(IList<int> left, IList<int> right, int lim)
