@@ -78,7 +78,7 @@ public static class ProblemFunctions
         return (left, right, frequencies);
     }
 
-    private static void PrintPreview(IList<int> left, IList<int> right, int lim)
+    private static void PrintPreview(List<int> left, List<int> right, int lim)
     {
         var min = Math.Min(lim, left.Count);
         for (var i = 0; i < min; i++)
