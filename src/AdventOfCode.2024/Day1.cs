@@ -1,6 +1,6 @@
-﻿namespace AdventOfCode.Y2024.Day1;
+﻿namespace AdventOfCode.Y2024;
 
-public static class ProblemFunctions
+public static class Day1
 {
     public static async Task SolvePuzzles()
     {

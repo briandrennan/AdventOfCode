@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Using Include="AdventOfCode.Y2024" />
     <None Include="Data/**/*.*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
